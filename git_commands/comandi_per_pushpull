@@ -1,0 +1,12 @@
+#Comandi per salvare file su git, fare push e pull
+
+#Per mettere su staging area
+git add nomefile
+
+#per fare commit
+git commit -m "nome commit"
+
+#per push
+git push
+#per pull
+git pull
