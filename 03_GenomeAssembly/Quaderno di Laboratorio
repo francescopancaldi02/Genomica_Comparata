@@ -1,5 +1,8 @@
 # Quaderno di laboratorio 03_GenomeAssembly
-
-# comando per contig level assembly
+```bash
+# comando per contig level assembly, crea layout delle reads (struttura della reads)
 # wtdbg2 -x rs -g <EXPECTED_GENOMESIZE> -t <NUMBERS_OF_CORES> -i <FASTQ> -fo <OUT_PREFIX> #Default parameters
  wtdbg2 -x rs -g 227054799 -t 9 -i SRR11672506.fastq.gz -fo Anoste_raw #Default parameters
+#Comando per il consenso, la stringa che descrive l'assembly
+# wtpoa-cns -t <NUMBER_OF_CORES> -i <LAYOUT_FILE-.ctg.lay.gz> -fo <OUT_PREFIX>
+```
