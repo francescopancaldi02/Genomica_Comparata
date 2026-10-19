@@ -1,1 +1,5 @@
 # Quaderno di laboratorio 03_GenomeAssembly
+
+# comando per contig level assembly
+# wtdbg2 -x rs -g <EXPECTED_GENOMESIZE> -t <NUMBERS_OF_CORES> -i <FASTQ> -fo <OUT_PREFIX> #Default parameters
+ wtdbg2 -x rs -g 227054799 -t 9 -i SRR11672506.fastq.gz -fo Anoste_raw #Default parameters
