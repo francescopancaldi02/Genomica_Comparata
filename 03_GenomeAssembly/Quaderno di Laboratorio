@@ -7,5 +7,12 @@
 
 # comando per il consenso, la stringa che descrive l'assembly
 # wtpoa-cns -t <NUMBER_OF_CORES> -i <LAYOUT_FILE-.ctg.lay.gz> -fo <OUT_PREFIX>
-wtpoa-cns -t 9 -i Anoste_raw.ctg.lay.gz -fo Anoste_raw
+wtpoa-cns -t 9 -i Anoste_raw.ctg.lay.gz -fo Anoste_raw.fasta
+
+#comandi per analisi busco
+coda activate sequence
+#export NUMEXPR_MAX_THREADS=<CPU_number>
+#busco -m <MODE> -l <LINEAGE> -c <CPU_NUMBER> -o <OUTPUT_NAME> -i <INPUT>
+busco -m geno -l $BUSCO/diptera_odb12 -c 8 -o Anoste_raw -i Anoste_raw.fasta
+
 ```
