@@ -91,6 +91,7 @@ samtools index "$PREFIX"_lr_sorted.bam
 # calcola coverage short reads
 # mosdepth -n --fast-mode --by 500 <...>
 mosdepth -n --fast-mode --by 500 sr_coverage Anoste_raw_sr_sorted.bam
+zcat sr_coverage.regions.bed.gz | awk '{sum += $4;count++} END {print sum / count}' > coverage_sr_fin.txt
 # Comando per fare hypo
 # echo -e "$R1\n$R2" > <READS_PATH>
 # hypo -d <DRAFT_Contigs> -r @<READS_PATH> -s <APPROXIMATE_GENOMESIZE> -c <SHORT_READSCOVERAGE> -b <SORTED_BAM_SR> -B <SORTED_BAM_PB> -t <NUMBER_THREADS>
