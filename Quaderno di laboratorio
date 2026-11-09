@@ -70,7 +70,7 @@ samtools sort -@"$CPU" -o "$PREFIX"_sr_sorted.bam "$PREFIX"_sr.bam
 samtools index "$PREFIX"_sr_sorted.bam
 
 #MAPPING LONG READS ON ASSEMBLY
-minimap2 -ax map-pb --MD -t "$CPU" "$INPUT" "LR" > "$PREFIX"_lr.sam
+minimap2 -ax map-pb --MD -t "$CPU" "$INPUT" "$LR" > "$PREFIX"_lr.sam
 
 #trasforma file SAM in BAM
 samtools view -b "$PREFIX"_lr.sam > "$PREFIX"_lr.bam
