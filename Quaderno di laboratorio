@@ -87,6 +87,7 @@ samtools index "$PREFIX"_lr_sorted.bam
 
 
 ```
+#CONTAMINANT DETECTION
 ```bash
 # calcola coverage short reads
 # mosdepth -n --fast-mode --by 500 <...>
@@ -96,4 +97,17 @@ zcat sr_coverage.regions.bed.gz | awk '{sum += $4;count++} END {print sum / coun
 # echo -e "$R1\n$R2" > <READS_PATH>
 # hypo -d <DRAFT_Contigs> -r @<READS_PATH> -s <APPROXIMATE_GENOMESIZE> -c <SHORT_READSCOVERAGE> -b <SORTED_BAM_SR> -B <SORTED_BAM_PB> -t <NUMBER_THREADS>
 ```
+```bash
+# Comandi per Re-mapping short-read data to the assembly
+# minimap2 --secondary=no --MD -ax sr -t <NUMBER_CORE> <ASSEMBLY> <FASTQ_R1> <FASTQ_R2> | samtools view -Sb - > <OUT_BAMFILE>.bam
+# samtools sort -@<n_cores> -o <OUT_SORTED_BAMFILE>_sorted.bam Anoste_pol.bam
+# rm Anoste_pol.bam
+# samtools index Anoste_pol_sorted.bam
 
+# Taxonomic annotation of the contigs
+# blastn -query <ASSEMBLY> -db <PATH/TO/nt/> -outfmt '6 qseqid staxids bitscore std sscinames sskingdoms stitle' -max_target_seqs 25 -max_hsps 1 -num_threads 25 -evalue 1e-25 -out <OUTFILE>
+
+# Construction a BlobDB data structure and assembly visualisation
+# blobtools create -i <ASSEMBLY> -b <MAPPING_FILE> -t <BLASTN_FILE> -o <OUTPUT_PREFIX>
+# blobtools view -i <JSON_FILE> -o <OUTPUT_PREFIX>
+# blobtools plot -i <JSON_FILE> -o <OUTPUT_PREFIX>
