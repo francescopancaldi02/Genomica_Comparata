@@ -109,5 +109,6 @@ zcat sr_coverage.regions.bed.gz | awk '{sum += $4;count++} END {print sum / coun
 
 # Construction a BlobDB data structure and assembly visualisation
 # blobtools create -i <ASSEMBLY> -b <MAPPING_FILE> -t <BLASTN_FILE> -o <OUTPUT_PREFIX>
+#Comandi per visualizzare il blobDAtaBase in modalità tabellare e grafica
 # blobtools view -i <JSON_FILE> -o <OUTPUT_PREFIX>
 # blobtools plot -i <JSON_FILE> -o <OUTPUT_PREFIX>
