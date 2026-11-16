@@ -1,48 +1,48 @@
-# 02 Kmer based survey
+#02 Kmer based survey
 
 
 ```bash
-# Comando per fare quality control delle raw reads appena sequenziate. I files indicati vengono da git delle lezioni.
+#Comando per fare quality control delle raw reads appena sequenziate. I files indicati vengono da git delle lezioni.
 fastqc /home/PERSONALE/mirko.martini3/Lab_CompGeno/00_practice/00_data/00_reads/SRR11672503_1.fastq.gz /home/PERSONALE/mirko.martini3/Lab_CompGeno/00_practice/00_data/00_reads/SRR11672503_2.fastq.gz
 ```
 ```bash
-# Comando per effettuare il trimming delle sequenze a cui è stato effettuato il quality control. Trimming = rimozione di parti di bassa qualità della sequenza.
+#Comando per effettuare il trimming delle sequenze a cui è stato effettuato il quality control. Trimming = rimozione di parti di bassa qualità della sequenza.
 trimmomatic PE -threads 8 -phred33 SRR11672503_1.fastq.gz SRR11672503_2.fastq.gz SRR11672503_1_paired.fastq SRR11672503_1_unpaired.fastq SRR11672503_2_paired.fastq SRR11672503_2_unpaired.fastq ILLUMINACLIP:/opt/miniforge3/envs/assembly/share/trimmomatic-0.40-0/adapters/TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:36 2> stats_trimmomatic.log
 ```
 ```bash
 conda activate kat
-# Comando per analizzare i kmer
-# kat hist -t <THREADS> -m <MER LENGTH> -o <OUTPUT PREFIX> <paired_1> <paired_2>
+#Comando per analizzare i kmer
+#kat hist -t <THREADS> -m <MER LENGTH> -o <OUTPUT PREFIX> <paired_1> <paired_2>
 # 
 kat hist -t 8 -m 27 -o anoste_27 SRR11672503_1_paired.fastq SRR11672503_2_paired.fastq
 ```
 
-# 03 GenomeAssembly
+#03 GenomeAssembly
 
 ```bash
-# comando per contig level assembly, crea layout delle reads (struttura della reads)
-# wtdbg2 -x rs -g <EXPECTED_GENOMESIZE> -t <NUMBERS_OF_CORES> -i <FASTQ> -fo <OUT_PREFIX> #Default parameters
+#comando per contig level assembly, crea layout delle reads (struttura della reads)
+#wtdbg2 -x rs -g <EXPECTED_GENOMESIZE> -t <NUMBERS_OF_CORES> -i <FASTQ> -fo <OUT_PREFIX> #Default parameters
  wtdbg2 -x rs -g 227054799 -t 9 -i SRR11672506.fastq.gz -fo Anoste_raw #Default parameters
 
-# comando per il consenso, la stringa che descrive l'assembly
-# wtpoa-cns -t <NUMBER_OF_CORES> -i <LAYOUT_FILE-.ctg.lay.gz> -fo <OUT_PREFIX>
+#comando per il consenso, la stringa che descrive l'assembly
+#wtpoa-cns -t <NUMBER_OF_CORES> -i <LAYOUT_FILE-.ctg.lay.gz> -fo <OUT_PREFIX>
 wtpoa-cns -t 9 -i Anoste_raw.ctg.lay.gz -fo Anoste_raw.fasta
 
-# comandi per analisi busco
+#comandi per analisi busco
 coda activate sequence
-# export NUMEXPR_MAX_THREADS=<CPU_number>
-# busco -m <MODE> -l <LINEAGE> -c <CPU_NUMBER> -o <OUTPUT_NAME> -i <INPUT>
+#export NUMEXPR_MAX_THREADS=<CPU_number>
+#busco -m <MODE> -l <LINEAGE> -c <CPU_NUMBER> -o <OUTPUT_NAME> -i <INPUT>
 busco -m geno -l $BUSCO/diptera_odb12 -c 8 -o Anoste_raw -i Anoste_raw.fasta
 
-# comandi per genome polishing
-# mapping delle reads (dove cadono nei contig)
-# mapping short and long reads on assembly
+#comandi per genome polishing
+#mapping delle reads (dove cadono nei contig)
+#mapping short and long reads on assembly
 minimap2 -ax <PRESET_Options> --MD -t <cores_number> <target.fa> <fastq1> <fastq2> > <SAM_FILE>
-# trasforma file SAM in BAM
+#trasforma file SAM in BAM
 samtools view -b <SAM FILE> > <BAM FILE>
-# rimuove file SAM
+#rimuove file SAM
 rm <SAM FILE>
-# sorta il BAM e lo indicizza
+#sorta il BAM e lo indicizza
 samtools sort -@<NUM_THREADS> -o <OUT_FILE> <INFILE>
 samtools index <INFILE>
 
@@ -89,26 +89,34 @@ samtools index "$PREFIX"_lr_sorted.bam
 ```
 #CONTAMINANT DETECTION
 ```bash
-# calcola coverage short reads
-# mosdepth -n --fast-mode --by 500 <...>
+#calcola coverage short reads
+#mosdepth -n --fast-mode --by 500 <...>
 mosdepth -n --fast-mode --by 500 sr_coverage Anoste_raw_sr_sorted.bam
 zcat sr_coverage.regions.bed.gz | awk '{sum += $4;count++} END {print sum / count}' > coverage_sr_fin.txt
-# Comando per fare hypo
-# echo -e "$R1\n$R2" > <READS_PATH>
-# hypo -d <DRAFT_Contigs> -r @<READS_PATH> -s <APPROXIMATE_GENOMESIZE> -c <SHORT_READSCOVERAGE> -b <SORTED_BAM_SR> -B <SORTED_BAM_PB> -t <NUMBER_THREADS>
+#Comando per fare hypo
+#echo -e "$R1\n$R2" > <READS_PATH>
+#hypo -d <DRAFT_Contigs> -r @<READS_PATH> -s <APPROXIMATE_GENOMESIZE> -c <SHORT_READSCOVERAGE> -b <SORTED_BAM_SR> -B <SORTED_BAM_PB> -t <NUMBER_THREADS>
 ```
 ```bash
-# Comandi per Re-mapping short-read data to the assembly
-# minimap2 --secondary=no --MD -ax sr -t <NUMBER_CORE> <ASSEMBLY> <FASTQ_R1> <FASTQ_R2> | samtools view -Sb - > <OUT_BAMFILE>.bam
-# samtools sort -@<n_cores> -o <OUT_SORTED_BAMFILE>_sorted.bam Anoste_pol.bam
-# rm Anoste_pol.bam
-# samtools index Anoste_pol_sorted.bam
+#Comandi per Re-mapping short-read data to the assembly
+#minimap2 --secondary=no --MD -ax sr -t <NUMBER_CORE> <ASSEMBLY> <FASTQ_R1> <FASTQ_R2> | samtools view -Sb - > <OUT_BAMFILE>.bam
+#samtools sort -@<n_cores> -o <OUT_SORTED_BAMFILE>_sorted.bam Anoste_pol.bam
+#rm Anoste_pol.bam
+#samtools index Anoste_pol_sorted.bam
 
-# Taxonomic annotation of the contigs
-# blastn -query <ASSEMBLY> -db <PATH/TO/nt/> -outfmt '6 qseqid staxids bitscore std sscinames sskingdoms stitle' -max_target_seqs 25 -max_hsps 1 -num_threads 25 -evalue 1e-25 -out <OUTFILE>
+#Taxonomic annotation of the contigs
+#blastn -query <ASSEMBLY> -db <PATH/TO/nt/> -outfmt '6 qseqid staxids bitscore std sscinames sskingdoms stitle' -max_target_seqs 25 -max_hsps 1 -num_threads 25 -evalue 1e-25 -out <OUTFILE>
 
-# Construction a BlobDB data structure and assembly visualisation
-# blobtools create -i <ASSEMBLY> -b <MAPPING_FILE> -t <BLASTN_FILE> -o <OUTPUT_PREFIX>
+#Construction a BlobDB data structure and assembly visualisation
+#blobtools create -i <ASSEMBLY> -b <MAPPING_FILE> -t <BLASTN_FILE> -o <OUTPUT_PREFIX>
+blobtools create -i Anoste_pol.fasta -b Anoste_pol_sorted.bam -t Anoste_blast.tsv -o Anoste_blob
 #Comandi per visualizzare il blobDAtaBase in modalità tabellare e grafica
-# blobtools view -i <JSON_FILE> -o <OUTPUT_PREFIX>
-# blobtools plot -i <JSON_FILE> -o <OUTPUT_PREFIX>
+#blobtools view -i <JSON_FILE> -o <OUTPUT_PREFIX>
+#blobtools plot -i <JSON_FILE> -o <OUTPUT_PREFIX>
+blobtools plot -i Anoste_blob.blobDB.json -o Anoste
+blobtools view -i Anoste_blob.blobDB.json -o Anoste
+#comando per vedere solo le righe che non iniziano con "##"
+#grep -v '^##' Anoste_blobDB_table.txt | column -t -s $'\t' | less`
+#The first part ensures the FASTA is in one-line form and reformats the file, obtaining">header\tsequence". This makes it easier to process the file with grep. Then it filters out everything in the patterns file, outputting a one-line FASTA file with only the desired contigs.
+awk '{ if ((NR>1)&&($0~/^>/)) { printf("\n%s", $0); } else if (NR==1) { printf("%s", $0); } else { printf("\t%s", $0); } }' in.fa | grep -w -v -Ff patterns.txt - | tr "\t" "\n" > out.fa
+
