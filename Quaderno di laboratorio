@@ -218,8 +218,42 @@ maker -CTL
 #comando per specificare il prefisso personalizzato per la cartella e i file di output durante l'esecuzione della pipeline di annotazione genomica MAKER.
 #maker -base <OUTPUT PREFIX>
 maker -base Anoste_rnd1
-
+#comando per unzippare l'archivio precedentemente linkato (gentilmente concesso) da Mirko
 tar -z -xf maker1.tar.gz
+
+#comandi per creare un gff3 e un file trascrizione/proteine
+#fasta_merge -d <DATASTORE INDEX FILE>
+#gff3_merge -d <DATASTORE INDEX FILE>
+fasta_merge -d Anoste_rnd1_master_datastore_index.log
+gff3_merge -d Anoste_rnd1_master_datastore_index.log
+
+
+#DOWNLOAD DELLE SPECIE
+#script per fare download usando la tabella
+       #!/bin/bash
+       
+       #This script downloads genomes and relative gff from NCBI datasets creating ready to use folders
+       
+       AN2name=$1
+       
+       mkdir 00_genome
+       mkdir 01_gff
+       
+       while IFS=$'\t' read -r AN sname ID; do
+               echo $AN
+               #download specifying the name of the folder
+               datasets download genome accession "$AN" --filename "$ID".zip --include genome,gff3
+               #unzip specifying the name of the folder
+               unzip "$ID".zip -d "$ID"
+               #rename the two file of interest
+               mv "$ID"/ncbi_dataset/data/"$AN"/*.fna 00_genome/"$ID".fna
+               mv "$ID"/ncbi_dataset/data/"$AN"/*.gff 01_gff/"$ID".gff
+               #delete the folder
+               rm -r "$ID"/
+       done < "$AN2name"
+       download_dataset.sh (END)
+#comando per far partire lo script che scarica da NCBI
+bash download_dataset.sh dataset_new.tsv
 
 
 ```
