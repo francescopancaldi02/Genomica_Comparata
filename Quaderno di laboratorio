@@ -219,5 +219,7 @@ maker -CTL
 #maker -base <OUTPUT PREFIX>
 maker -base Anoste_rnd1
 
+tar -z -xf maker1.tar.gz
+
 
 ```
