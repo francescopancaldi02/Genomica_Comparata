@@ -1,0 +1,5 @@
+GCF_963082655.1-RS_2023_08	Stomoxys calcitrans	Stocal
+GCF_014805625.2	Glossina fuscipes	Glofus
+GCF_035046485.1	Aedes albopictus	Aedalb
+GCF_024763615.1	Phlebotomus papatasi	phlpap
+GCF_043229965.1	Drosophila suzukii	Drosuz
